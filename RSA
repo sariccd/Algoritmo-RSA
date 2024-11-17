@@ -1,0 +1,58 @@
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Scanner;
+
+public class RSAEncryption {
+    private BigInteger n;
+    private BigInteger e;
+    private BigInteger d;
+    private BigInteger V;
+
+    public RSAEncryption(int bitlength) {
+        BigInteger p = BigInteger.probablePrime(bitlength, new SecureRandom());
+        BigInteger q = BigInteger.probablePrime(bitlength, new SecureRandom());
+
+        n = p.multiply(q);
+
+        V = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
+
+        e = BigInteger.valueOf(65537);
+
+        d = e.modInverse(V);
+    }
+
+    public BigInteger encrypt(BigInteger message) {
+        return message.modPow(e, n);
+    }
+
+    public BigInteger decrypt(BigInteger encrypted) {
+        return encrypted.modPow(d, n);
+    }
+    
+    public BigInteger getPublicKey() {
+        return e;
+    }
+    
+    public BigInteger getModulus() {
+        return n;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        RSAEncryption rsa = new RSAEncryption(1024);
+        System.out.println("Chiave pubblica (e): " + rsa.getPublicKey());
+        System.out.println("Modulo (n): " + rsa.getModulus());
+
+        System.out.print("Inserisci un messaggio da criptare (numerico): ");
+        BigInteger message = new BigInteger(scanner.nextLine());
+
+        BigInteger encryptedMessage = rsa.encrypt(message);
+        System.out.println("Messaggio criptato: " + encryptedMessage);
+
+        BigInteger decryptedMessage = rsa.decrypt(encryptedMessage);
+        System.out.println("Messaggio decriptato: " + decryptedMessage);
+        
+        scanner.close();
+    }
+}
